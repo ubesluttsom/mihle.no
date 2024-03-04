@@ -1,0 +1,26 @@
+name: Update Version
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Update version in HTML
+      run: |
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+        sed -i "s/id=\"version\">.*<\/span>/id=\"version\">$COMMIT_HASH<\/span>/" index.html
+
+    - name: Commit and push if changed
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        git add index.html
+        git commit -m "Update version to ${{ github.sha }}" -a || echo "No changes to commit"
+        git push
